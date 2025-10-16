@@ -1,0 +1,155 @@
+# Crest - Build artifacts and generated files
+build/
+cmake-build-*/
+out/
+Debug/
+Release/
+RelWithDebInfo/
+MinSizeRel/
+.vs/
+*.user
+*.suo
+*.sln.docstates
+
+# Compiled Object files
+*.o
+*.obj
+*.lo
+*.slo
+*.ko
+*.elf
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.so.*
+*.dylib
+*.dll
+
+# Compiled Static libraries
+*.a
+*.lib
+*.la
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+cmake_install.cmake
+install_manifest.cmake
+compile_commands.json
+CTestTestfile.cmake
+_deps/
+Testing/
+*.cmake
+!CMakeLists.txt
+!cmake/*.cmake
+!cmake/*.cmake.in
+
+# xmake
+.xmake/
+.cache/
+xmake-*/
+
+# Conan
+conan.lock
+conanbuildinfo.*
+conaninfo.txt
+graph_info.json
+
+# vcpkg
+vcpkg_installed/
+.vcpkg/
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.py[cod]
+*$py.class
+.Python
+env/
+ENV/
+pip-log.txt
+.pytest_cache/
+*.egg-info/
+dist/
+*.egg
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.cproject
+.settings/
+*.code-workspace
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+
+# Package files
+*.tar.gz
+*.zip
+*.7z
+
+# Coverage
+*.gcda
+*.gcno
+*.gcov
+coverage/
+htmlcov/
+
+# Valgrind
+*.valgrind
+vgcore.*
+
+# Address Sanitizer
+*.asan
+
+# Documentation build
+docs/_site/
+docs/.jekyll-cache/
+docs/.jekyll-metadata
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.pyo
+.python-version
+
+# Documentation build
+docs/_site/
+docs/.jekyll-cache/
+docs/.jekyll-metadata

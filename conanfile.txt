@@ -1,0 +1,14 @@
+[requires]
+
+[generators]
+cmake
+cmake_find_package
+cmake_paths
+
+[options]
+
+[layout]
+cmake_layout
+
+[tool_requires]
+cmake/3.24.0

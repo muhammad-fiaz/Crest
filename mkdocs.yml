@@ -1,0 +1,65 @@
+site_name: Crest API Framework
+site_description: A lightweight, fast C/C++ REST API framework with automatic API documentation
+site_author: Crest Team
+site_url: https://crest-framework.github.io
+
+repo_name: crest-framework/crest
+repo_url: https://github.com/crest-framework/crest
+
+copyright: Copyright &copy; 2024 Crest Framework
+
+theme:
+  name: material
+  palette:
+    primary: blue
+    accent: blue
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - toc.integrate
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.annotation
+    - content.code.copy
+
+plugins:
+  - search
+  - minify:
+      minify_html: true
+
+nav:
+  - Home: index.md
+  - Quick Start: quickstart.md
+  - API Reference: api.md
+  - Features:
+      - API Documentation: features/api-documentation.md
+  - Contributing: CONTRIBUTING.md
+  - Changelog: CHANGELOG.md
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - attr_list
+  - md_in_html
+  - footnotes
+  - tables
+  - toc:
+      permalink: true
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/crest-framework/crest
+    - icon: fontawesome/brands/docker
+      link: https://hub.docker.com/r/crest-framework/crest
+
+  generator: false
