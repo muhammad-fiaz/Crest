@@ -218,7 +218,8 @@ std::string QueryBuilder::build() const {
             query << ") VALUES (";
             {
                 size_t i = 0;
-                for (const auto& pair : data_) {
+                for (const auto& [key, value] : data_) {
+                    (void)key; (void)value;
                     if (i++ > 0) query << ", ";
                     query << "?";
                 }

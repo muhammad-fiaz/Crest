@@ -2,6 +2,7 @@
 # mypy: disable-error-code=import
 from conan import ConanFile
 from conan.tools.cmake import CMakeToolchain, cmake_layout
+from conan.tools.files import copy
 
 
 class CrestConan(ConanFile):
@@ -41,13 +42,12 @@ class CrestConan(ConanFile):
 
     def package(self):
         """Package the built artifacts."""
-        self.copy("*.h", dst="include/crest", src="include/crest")
-        self.copy("*.hpp", dst="include/crest", src="include/crest")
-        self.copy("*.lib", dst="lib", keep_path=False)
-        self.copy("*.dll", dst="bin", keep_path=False)
-        self.copy("*.so", dst="lib", keep_path=False)
-        self.copy("*.dylib", dst="lib", keep_path=False)
-        self.copy("*.a", dst="lib", keep_path=False)
+        copy(self, "*.h", src=self.source_folder, dst=self.package_folder, keep_path=True)
+        copy(self, "*.hpp", src=self.source_folder, dst=self.package_folder, keep_path=True)
+        copy(self, "*.a", src=self.build_folder, dst=self.package_folder, keep_path=False)
+        copy(self, "*.lib", src=self.build_folder, dst=self.package_folder, keep_path=False)
+        copy(self, "*.so", src=self.build_folder, dst=self.package_folder, keep_path=False)
+        copy(self, "*.dylib", src=self.build_folder, dst=self.package_folder, keep_path=False)
 
     def package_info(self):
         """Provide information about the packaged library."""
