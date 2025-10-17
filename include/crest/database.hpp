@@ -76,7 +76,9 @@ public:
     QueryBuilder& where(const std::string& condition);
     QueryBuilder& where(const std::string& column, const std::string& op, const Value& value);
     QueryBuilder& and_where(const std::string& condition);
+    QueryBuilder& and_where(const std::string& column, const std::string& op, const Value& value);
     QueryBuilder& or_where(const std::string& condition);
+    QueryBuilder& or_where(const std::string& column, const std::string& op, const Value& value);
     QueryBuilder& order_by(const std::string& column, bool ascending = true);
     QueryBuilder& limit(int count);
     QueryBuilder& offset(int count);

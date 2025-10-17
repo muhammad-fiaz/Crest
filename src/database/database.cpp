@@ -83,12 +83,32 @@ QueryBuilder& QueryBuilder::and_where(const std::string& condition) {
     return *this;
 }
 
+QueryBuilder& QueryBuilder::and_where(const std::string& column, const std::string& op, const Value& value) {
+    if (!conditions_.empty()) {
+        conditions_.push_back("AND " + column + " " + op + " ?");
+    } else {
+        conditions_.push_back(column + " " + op + " ?");
+    }
+    params_.push_back(value);
+    return *this;
+}
+
 QueryBuilder& QueryBuilder::or_where(const std::string& condition) {
     if (!conditions_.empty()) {
         conditions_.push_back("OR " + condition);
     } else {
         conditions_.push_back(condition);
     }
+    return *this;
+}
+
+QueryBuilder& QueryBuilder::or_where(const std::string& column, const std::string& op, const Value& value) {
+    if (!conditions_.empty()) {
+        conditions_.push_back("OR " + column + " " + op + " ?");
+    } else {
+        conditions_.push_back(column + " " + op + " ?");
+    }
+    params_.push_back(value);
     return *this;
 }
 

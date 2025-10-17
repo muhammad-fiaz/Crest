@@ -30,12 +30,14 @@ public:
 class CorsMiddleware : public Middleware {
 public:
     struct Options {
-        std::vector<std::string> allowed_origins = {"*"};
-        std::vector<std::string> allowed_methods = {"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"};
-        std::vector<std::string> allowed_headers = {"*"};
-        std::vector<std::string> exposed_headers = {};
-        bool allow_credentials = false;
-        int max_age = 86400;
+        std::vector<std::string> allowed_origins;
+        std::vector<std::string> allowed_methods;
+        std::vector<std::string> allowed_headers;
+        std::vector<std::string> exposed_headers;
+        bool allow_credentials;
+        int max_age;
+
+        Options() : allowed_origins({"*"}), allowed_methods({"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"}), allowed_headers({"*"}), exposed_headers({}), allow_credentials(false), max_age(86400) {}
     };
 
     explicit CorsMiddleware(const Options& opts = Options()) : options_(opts) {}
