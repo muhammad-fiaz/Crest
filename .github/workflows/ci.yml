@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    
+    steps:
+    - uses: actions/checkout@v5
+    
+    - name: Install xmake
+      uses: xmake-io/github-action-setup-xmake@v1
+      with:
+        xmake-version: latest
+    
+    - name: Build
+      run: |
+        xmake config -m release
+        xmake build
+    
+    - name: Run Tests
+      run: |
+        xmake build crest_tests
+        xmake run crest_tests
+    
+    - name: Build Examples
+      run: |
+        xmake build crest_example_cpp
+        xmake build crest_example_c
+
+  lint:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v5
+    
+    - name: Install xmake
+      uses: xmake-io/github-action-setup-xmake@v1
+    
+    - name: Check Format
+      run: |
+        xmake config
+        xmake build

@@ -1,111 +1,157 @@
--- Crest Framework - xmake Build Configuration
--- Modern C REST API Framework
-
+-- Crest RESTful API Framework
+-- Version: 0.0.0
 set_project("crest")
-set_version("1.0.0")
-set_languages("c11", "cxx17")
+set_version("0.0.0")
+set_xmakever("2.8.0")
 
--- Options
-option("shared", {description = "Build shared library", default = true})
-option("static", {description = "Build static library", default = true})
-option("examples", {description = "Build examples", default = true})
-option("dashboard", {description = "Enable web dashboard", default = true})
+add_rules("mode.debug", "mode.release")
+set_languages("c17", "cxx20")
+set_optimize("faster")
+set_warnings("all")
 
--- Platform specific settings
 if is_plat("windows") then
-    add_defines("_WIN32_WINNT=0x0601")
-    add_syslinks("ws2_32")
-elseif is_plat("linux", "macosx") then
+    add_defines("CREST_WINDOWS", "CREST_EXPORT")
+    add_cxxflags("/utf-8")
+    add_syslinks("ws2_32", "mswsock")
+elseif is_plat("linux") then
+    add_defines("CREST_LINUX")
+    add_syslinks("pthread")
+elseif is_plat("macosx") then
+    add_defines("CREST_MACOS")
     add_syslinks("pthread")
 end
 
--- Include directories
-add_includedirs("include")
-
--- Source files
-local core_sources = {
-    "src/core/app.c",
-    "src/core/config.c",
-    "src/core/request.c",
-    "src/core/response.c",
-    "src/core/server.c",
-    "src/core/router.c",
-    "src/core/middleware.c"
-}
-
-local util_sources = {
-    "src/utils/json.c",
-    "src/utils/logger.c",
-    "src/utils/string_utils.c"
-}
-
-local dashboard_sources = {
-    "src/dashboard/dashboard.c"
-}
-
-local all_sources = {}
-for _, v in ipairs(core_sources) do table.insert(all_sources, v) end
-for _, v in ipairs(util_sources) do table.insert(all_sources, v) end
-for _, v in ipairs(dashboard_sources) do table.insert(all_sources, v) end
-
--- Shared library target
-if has_config("shared") then
-    target("crest")
-        set_kind("shared")
-        add_files(all_sources)
-        add_headerfiles("include/crest/*.h")
-        set_targetdir("build/lib")
-        
-        after_install(function (target)
-            print("Crest shared library installed successfully!")
-        end)
-    target_end()
-end
-
--- Static library target
-if has_config("static") then
-    target("crest_static")
-        set_kind("static")
-        add_files(all_sources)
-        add_headerfiles("include/crest/*.h")
-        set_targetdir("build/lib")
-        set_basename("crest")
-        
-        after_install(function (target)
-            print("Crest static library installed successfully!")
-        end)
-    target_end()
-end
-
--- Examples
-if has_config("examples") then
-    target("crest_basic_example")
-        set_kind("binary")
-        add_files("examples/basic/main.c")
-        add_deps("crest")
-        set_targetdir("build/examples")
-    target_end()
+target("crest")
+    set_kind("$(kind)")
+    add_files("src/core/*.c")
+    add_files("src/core/*.cpp")
+    add_files("src/http/*.c")
+    add_files("src/router/*.cpp")
+    add_files("src/server/*.cpp")
+    add_files("src/middleware/*.cpp")
+    add_files("src/swagger/*.cpp")
+    add_files("src/websocket/*.cpp")
+    add_files("src/database/*.cpp")
+    add_files("src/upload/*.cpp")
+    add_files("src/template/*.cpp")
+    add_files("src/utils/*.c")
+    add_files("src/utils/*.cpp")
+    add_headerfiles("include/(**.h)", "include/(**.hpp)")
+    add_includedirs("include", {public = true})
+    set_targetdir("build/lib")
     
-    target("crest_advanced_example")
-        set_kind("binary")
-        add_files("examples/advanced/advanced.c")
-        add_deps("crest")
-        set_targetdir("build/examples")
-    target_end()
-end
-
--- Installation
-on_install(function (target)
-    -- Install headers
-    os.cp("include/crest/*.h", path.join(target:installdir(), "include/crest"))
-    
-    -- Install libraries
-    if target:kind() == "shared" or target:kind() == "static" then
-        os.cp(target:targetfile(), path.join(target:installdir(), "lib"))
+    if is_kind("shared") then
+        add_defines("CREST_BUILD_SHARED")
     end
-end)
 
--- Package information
-set_description("Crest - A modern, fast, and lightweight REST API framework for C/C++")
-set_license("MIT")
-set_homepage("https://muhammad-fiaz.github.io/crest")
+target("crest_example_cpp")
+    set_kind("binary")
+    add_files("examples/cpp/main.cpp")
+    add_deps("crest")
+    add_includedirs("include")
+    set_targetdir("build/bin")
+
+target("crest_concurrent_example")
+    set_kind("binary")
+    add_files("examples/cpp/concurrent_example.cpp")
+    add_deps("crest")
+    add_includedirs("include")
+    set_targetdir("build/bin")
+
+target("crest_status_codes_example")
+    set_kind("binary")
+    add_files("examples/cpp/status_codes_example.cpp")
+    add_deps("crest")
+    add_includedirs("include")
+    set_targetdir("build/bin")
+
+target("crest_schema_example")
+    set_kind("binary")
+    add_files("examples/cpp/schema_example.cpp")
+    add_deps("crest")
+    add_includedirs("include")
+    set_targetdir("build/bin")
+
+target("crest_middleware_example")
+    set_kind("binary")
+    add_files("examples/cpp/middleware_example.cpp")
+    add_deps("crest")
+    add_includedirs("include")
+    set_targetdir("build/bin")
+
+target("crest_websocket_example")
+    set_kind("binary")
+    add_files("examples/cpp/websocket_example.cpp")
+    add_deps("crest")
+    add_includedirs("include")
+    set_targetdir("build/bin")
+
+target("crest_database_example")
+    set_kind("binary")
+    add_files("examples/cpp/database_example.cpp")
+    add_deps("crest")
+    add_includedirs("include")
+    set_targetdir("build/bin")
+
+target("crest_upload_example")
+    set_kind("binary")
+    add_files("examples/cpp/upload_example.cpp")
+    add_deps("crest")
+    add_includedirs("include")
+    set_targetdir("build/bin")
+
+target("crest_template_example")
+    set_kind("binary")
+    add_files("examples/cpp/template_example.cpp")
+    add_deps("crest")
+    add_includedirs("include")
+    set_targetdir("build/bin")
+
+target("crest_example_c")
+    set_kind("binary")
+    add_files("examples/c/*.c")
+    add_deps("crest")
+    add_includedirs("include")
+    set_targetdir("build/bin")
+
+target("crest_tests")
+    set_kind("binary")
+    add_files("tests/test_basic.cpp")
+    add_deps("crest")
+    add_includedirs("include")
+    set_targetdir("build/tests")
+
+target("crest_test_middleware")
+    set_kind("binary")
+    add_files("tests/test_middleware.cpp")
+    add_deps("crest")
+    add_includedirs("include")
+    set_targetdir("build/tests")
+
+target("crest_test_websocket")
+    set_kind("binary")
+    add_files("tests/test_websocket.cpp")
+    add_deps("crest")
+    add_includedirs("include")
+    set_targetdir("build/tests")
+
+target("crest_test_database")
+    set_kind("binary")
+    add_files("tests/test_database.cpp")
+    add_deps("crest")
+    add_includedirs("include")
+    set_targetdir("build/tests")
+
+target("crest_test_upload")
+    set_kind("binary")
+    add_files("tests/test_upload.cpp")
+    add_deps("crest")
+    add_includedirs("include")
+    set_targetdir("build/tests")
+
+target("crest_test_template")
+    set_kind("binary")
+    add_files("tests/test_template.cpp")
+    add_deps("crest")
+    add_includedirs("include")
+    set_targetdir("build/tests")

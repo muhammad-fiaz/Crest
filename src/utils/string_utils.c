@@ -1,63 +1,37 @@
 /**
  * @file string_utils.c
- * @brief String utility functions for Crest
+ * @brief String utility functions
  */
 
-#include <stdlib.h>
 #include <string.h>
+#include <stdlib.h>
 #include <ctype.h>
-#include <stdbool.h>
 
-#ifdef _WIN32
-#define strcasecmp _stricmp
-#endif
-
-char* crest_str_trim(const char *str) {
+char* crest_strdup(const char* str) {
     if (!str) return NULL;
-    
-    while (isspace((unsigned char)*str)) str++;
-    
-    if (*str == 0) return strdup("");
-    
-    const char *end = str + strlen(str) - 1;
-    while (end > str && isspace((unsigned char)*end)) end--;
-    
-    size_t len = end - str + 1;
-    char *result = (char*)malloc(len + 1);
-    memcpy(result, str, len);
-    result[len] = '\0';
-    
-    return result;
+    size_t len = strlen(str) + 1;
+    char* dup = (char*)malloc(len);
+    if (dup) memcpy(dup, str, len);
+    return dup;
 }
 
-char* crest_str_tolower(const char *str) {
-    if (!str) return NULL;
-    
-    char *result = strdup(str);
-    for (char *p = result; *p; p++) {
-        *p = tolower((unsigned char)*p);
+void crest_str_tolower(char* str) {
+    if (!str) return;
+    for (size_t i = 0; str[i]; i++) {
+        str[i] = tolower((unsigned char)str[i]);
     }
-    
-    return result;
 }
 
-char* crest_str_toupper(const char *str) {
-    if (!str) return NULL;
-    
-    char *result = strdup(str);
-    for (char *p = result; *p; p++) {
-        *p = toupper((unsigned char)*p);
-    }
-    
-    return result;
+int crest_str_startswith(const char* str, const char* prefix) {
+    if (!str || !prefix) return 0;
+    size_t len = strlen(prefix);
+    return strncmp(str, prefix, len) == 0;
 }
 
-int crest_str_equals(const char *a, const char *b) {
-    if (!a || !b) return 0;
-    return strcmp(a, b) == 0;
-}
-
-int crest_str_equals_ignore_case(const char *a, const char *b) {
-    if (!a || !b) return 0;
-    return strcasecmp(a, b) == 0;
+int crest_str_endswith(const char* str, const char* suffix) {
+    if (!str || !suffix) return 0;
+    size_t str_len = strlen(str);
+    size_t suffix_len = strlen(suffix);
+    if (suffix_len > str_len) return 0;
+    return strcmp(str + str_len - suffix_len, suffix) == 0;
 }

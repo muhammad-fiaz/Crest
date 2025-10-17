@@ -1,20 +1,20 @@
 [project]
-name = "crest-dev-env"
-version = "1.0.0"
-description = "Python development environment for Crest C++ REST API Framework (Conan package manager)"
-readme = "UV_USAGE.md"
-requires-python = ">=3.8"
-dependencies = [
-    "conan>=2.0.0",
-    "cffi>=1.15.0",
+name = "crest"
+version = "0.0.0"
+description = "Crest: a C/C++ Restful API framework"
+authors = [
+    { name ="Muhammad Fiaz", email = "contact@muhammadfiaz.com" },
 ]
-
-[project.optional-dependencies]
-dev = [
-    "cmake>=3.25.0",
+license = { text = "MIT" }
+url = "https://github.com/muhammadfiaz/crest"
+homepage = "https://github.com/muhammadfiaz/crest"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
 ]
 
 [dependency-groups]
 dev = [
-    "ruff>=0.14.0",
+    "conan>=2.21.0",
+    "ruff>=0.14.1",
 ]

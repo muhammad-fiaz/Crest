@@ -1,18 +1,17 @@
 {
   "name": "crest",
-  "version": "1.0.0",
-  "description": "A modern, fast, and lightweight REST API framework for C/C++",
-  "homepage": "https://muhammad-fiaz.github.io/crest",
+  "version": "0.0.0",
+  "description": "Production-ready RESTful API framework for C and C++",
+  "homepage": "https://github.com/muhammad-fiaz/crest",
   "license": "MIT",
-  "supports": "!(uwp|arm)",
   "dependencies": [],
-  "default-features": ["dashboard"],
   "features": {
-    "dashboard": {
-      "description": "Enable web dashboard for API documentation"
+    "examples": {
+      "description": "Build example applications",
+      "dependencies": []
     },
-    "json": {
-      "description": "Built-in JSON parser support",
+    "tests": {
+      "description": "Build test suite",
       "dependencies": []
     }
   }

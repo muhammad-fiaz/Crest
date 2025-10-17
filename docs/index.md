@@ -1,109 +1,104 @@
----
-layout: default
-title: Home
-nav_order: 1
-description: "Crest - A modern, fast, and lightweight REST API framework for C/C++"
-permalink: /
----
+# Welcome to Crest 🌊
 
-# 🌊 Crest Framework
+A production-ready, high-performance RESTful API framework for C and C++.
 
-{: .fs-9 }
+## Overview
 
-A modern, fast, and lightweight REST API framework for C/C++ with a beautiful web dashboard
-{: .fs-6 .fw-300 }
+Crest is a modern, lightweight framework for building RESTful APIs in C and C++. Inspired by the simplicity of modern API frameworks, Crest provides an intuitive interface while maintaining the performance and control that C/C++ developers expect.
 
-[Get Started](quickstart){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 }
-[View on GitHub](https://github.com/muhammad-fiaz/crest){: .btn .fs-5 .mb-4 .mb-md-0 }
+## Key Features
 
----
-
-## Features
-
-🚀 **Fast & Lightweight**
-{: .label .label-green }
-Minimal overhead with maximum performance
-
-🎯 **Simple API**
-{: .label .label-blue }
-FastAPI-like syntax for C/C++
-
-📊 **Web Dashboard**
-{: .label .label-purple }
-Beautiful interactive API documentation
-
-🔧 **Highly Modular**
-{: .label .label-yellow }
-Clean separation of concerns
-
----
+- **🚀 High Performance** - Built for speed with minimal overhead
+- **🔧 Dual Language Support** - Full support for both C and C++ projects
+- **📚 Auto Documentation** - Built-in Swagger UI at `/docs`
+- **🎯 Simple API** - Intuitive, easy-to-use interface
+- **🔒 Production Ready** - Exception handling, validation, and error reporting
+- **🌐 Cross-Platform** - Windows, Linux, and macOS support
+- **📦 Easy Integration** - Install via xmake, Conan, or vcpkg
+- **⚡ Modern C++20** - Leverages latest C++ features
+- **🎨 Responsive UI** - Beautiful, mobile-friendly documentation interface
 
 ## Quick Example
 
-```c
-#include <crest/crest.h>
+=== "C++"
 
-void hello(crest_request_t *req, crest_response_t *res) {
-    crest_response_json(res, "{\"message\":\"Hello, World!\"}");
-}
+    ```cpp
+    #include "crest/crest.hpp"
 
-int main(void) {
-    crest_app_t *app = crest_create();
-    
-    crest_enable_dashboard(app, true);
-    crest_get(app, "/", hello, "Welcome endpoint");
-    
-    crest_run(app, "0.0.0.0", 8080);
-    
-    crest_destroy(app);
-    return 0;
-}
-```
+    int main() {
+        crest::App app;
+        
+        app.get("/", [](crest::Request& req, crest::Response& res) {
+            res.json(200, R"({"message":"Hello, World!"})");
+        });
+        
+        app.run("0.0.0.0", 8000);
+        return 0;
+    }
+    ```
 
-## Installation
+=== "C"
 
-### Using CMake
+    ```c
+    #include "crest/crest.h"
 
-```bash
-git clone https://github.com/muhammad-fiaz/crest.git
-cd crest
-mkdir build && cd build
-cmake ..
-cmake --build .
-sudo cmake --install .
-```
+    void handle_root(crest_request_t* req, crest_response_t* res) {
+        crest_response_json(res, 200, "{\"message\":\"Hello, World!\"}");
+    }
 
-### Using vcpkg
-
-```bash
-vcpkg install crest
-```
-
-### Using Conan
-
-```bash
-conan install crest/1.0.0@
-```
+    int main(void) {
+        crest_app_t* app = crest_create();
+        crest_route(app, CREST_GET, "/", handle_root, "Root endpoint");
+        crest_run(app, "0.0.0.0", 8000);
+        crest_destroy(app);
+        return 0;
+    }
+    ```
 
 ## Why Crest?
 
-- **Zero Dependencies**: Core library has no external dependencies
-- **Cross-Platform**: Works on Windows, Linux, and macOS
-- **Multiple Build Systems**: CMake, xmake, Make, vcpkg, Conan
-- **C & C++ Compatible**: Use with both C and C++ projects
-- **Production Ready**: Battle-tested in real-world applications
-- **Well Documented**: Comprehensive documentation and examples
+### Simple and Intuitive
+
+Crest provides a clean, modern API that feels natural to use. Whether you're building a microservice or a full-featured API, Crest gets out of your way and lets you focus on your application logic.
+
+### Production Ready
+
+Built with production use in mind, Crest includes:
+
+- Comprehensive error handling
+- Request validation
+- Automatic documentation generation
+- Thread-safe request handling
+- Configurable timeouts and limits
+
+### Performance Focused
+
+Written in C/C++ with performance as a priority:
+
+- Minimal overhead
+- Efficient memory management
+- Fast request routing
+- Optimized for high concurrency
+
+### Developer Experience
+
+Inspired by modern frameworks for simplicity:
+
+- Automatic Swagger UI generation
+- Clear error messages
+- Extensive documentation
+- Rich examples
+
+## Getting Started
+
+Ready to build your first API with Crest? Check out our [Installation Guide](installation.md) and [Quick Start Tutorial](quickstart.md).
 
 ## Community
 
-- [GitHub Issues](https://github.com/muhammad-fiaz/crest/issues)
-- [GitHub Discussions](https://github.com/muhammad-fiaz/crest/discussions)
-- [Contributing Guide](https://github.com/muhammad-fiaz/crest/blob/main/CONTRIBUTING.md)
+- **GitHub**: [muhammad-fiaz/crest](https://github.com/muhammad-fiaz/crest)
+- **Issues**: [Report bugs or request features](https://github.com/muhammad-fiaz/crest/issues)
+- **Email**: [contact@muhammadfiaz.com](mailto:contact@muhammadfiaz.com)
 
 ## License
 
-Crest is released under the [MIT License](https://github.com/muhammad-fiaz/crest/blob/main/LICENSE).
-
----
-
-Made with ❤️ by [Muhammad Fiaz](https://github.com/muhammad-fiaz)
+Crest is open source software licensed under the [MIT License](license.md).

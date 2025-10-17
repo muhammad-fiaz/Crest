@@ -1,41 +1,53 @@
-site_name: Crest API Framework
-site_description: A lightweight, fast C/C++ REST API framework with automatic API documentation
-site_author: Crest Team
-site_url: https://crest-framework.github.io
+site_name: Crest Documentation
+site_url: https://muhammad-fiaz.github.io/crest
+site_author: Muhammad Fiaz
+site_description: Production-ready RESTful API framework for C and C++
 
-repo_name: crest-framework/crest
-repo_url: https://github.com/crest-framework/crest
-
-copyright: Copyright &copy; 2024 Crest Framework
+repo_name: muhammad-fiaz/crest
+repo_url: https://github.com/muhammad-fiaz/crest
+edit_uri: edit/main/docs/
 
 theme:
   name: material
   palette:
-    primary: blue
-    accent: blue
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
   features:
+    - navigation.instant
+    - navigation.tracking
     - navigation.tabs
     - navigation.sections
-    - toc.integrate
+    - navigation.expand
+    - navigation.top
     - search.suggest
     - search.highlight
-    - content.tabs.link
-    - content.code.annotation
     - content.code.copy
-
-plugins:
-  - search
-  - minify:
-      minify_html: true
+    - content.code.annotate
 
 nav:
   - Home: index.md
-  - Quick Start: quickstart.md
-  - API Reference: api.md
-  - Features:
-      - API Documentation: features/api-documentation.md
-  - Contributing: CONTRIBUTING.md
-  - Changelog: CHANGELOG.md
+  - Getting Started:
+    - Installation: installation.md
+    - Quick Start: quickstart.md
+  - API Reference:
+    - C API: c_api.md
+    - C++ API: cpp_api.md
+  - Guides:
+    - Configuration: configuration.md
+    - Examples: examples.md
+  - About:
+    - License: license.md
+    - Contributing: contributing.md
 
 markdown_extensions:
   - pymdownx.highlight:
@@ -47,19 +59,19 @@ markdown_extensions:
       alternate_style: true
   - admonition
   - pymdownx.details
-  - pymdownx.superfences
   - attr_list
   - md_in_html
-  - footnotes
   - tables
-  - toc:
-      permalink: true
+
+plugins:
+  - search
+  - tags
 
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/crest-framework/crest
-    - icon: fontawesome/brands/docker
-      link: https://hub.docker.com/r/crest-framework/crest
-
-  generator: false
+      link: https://github.com/muhammad-fiaz
+    - icon: fontawesome/solid/envelope
+      link: mailto:contact@muhammadfiaz.com
+  version:
+    provider: mike

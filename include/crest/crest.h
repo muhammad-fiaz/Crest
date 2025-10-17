@@ -1,12 +1,11 @@
 /**
  * @file crest.h
- * @brief Main header file for Crest - A modern C REST API framework
- * @author Muhammad Fiaz
- * @version 1.0.0
- * @date 2025-10-15
+ * @brief Crest RESTful API Framework - Main C API Header
+ * @version 0.0.0
+ * @author Muhammad Fiaz <contact@muhammadfiaz.com>
  * 
- * Crest is a lightweight, fast, and modular REST API framework for C/C++
- * with a beautiful web dashboard similar to FastAPI.
+ * Production-ready RESTful API framework for C projects
+ * Inspired by modern API frameworks for simplicity and performance
  */
 
 #ifndef CREST_H
@@ -17,41 +16,35 @@ extern "C" {
 #endif
 
 #include <stddef.h>
-#include <stdbool.h>
 #include <stdint.h>
+#include <stdbool.h>
 
-/* Version information */
-#define CREST_VERSION_MAJOR 1
+#define CREST_VERSION "0.0.0"
+#define CREST_VERSION_MAJOR 0
 #define CREST_VERSION_MINOR 0
 #define CREST_VERSION_PATCH 0
-#define CREST_VERSION "1.0.0"
 
-/* DLL export/import macro */
-#ifdef _WIN32
-    #ifdef CREST_STATIC
-        /* Static library - no dll import/export */
-        #define CREST_API
-    #elif defined(CREST_BUILD_SHARED)
+#ifdef CREST_BUILD_SHARED
+    #ifdef CREST_WINDOWS
         #define CREST_API __declspec(dllexport)
     #else
-        #define CREST_API __declspec(dllimport)
+        #define CREST_API __attribute__((visibility("default")))
     #endif
 #else
     #define CREST_API
 #endif
 
-/* Logging macros */
-#define CREST_LOG_DEBUG 0
-#define CREST_LOG_INFO 1
-#define CREST_LOG_WARN 2
-#define CREST_LOG_ERROR 3
+typedef struct crest_app crest_app_t;
+typedef struct crest_request crest_request_t;
+typedef struct crest_response crest_response_t;
 
-/* Logging functions */
-CREST_API void crest_log(int level, const char *format, ...);
-CREST_API void crest_log_set_level(int level);
-CREST_API void crest_log_enable(int enable);
+typedef struct crest_config {
+    const char* title;
+    const char* description;
+    const char* version;
+    bool docs_enabled;
+} crest_config_t;
 
-/* HTTP Methods */
 typedef enum {
     CREST_GET,
     CREST_POST,
@@ -62,431 +55,188 @@ typedef enum {
     CREST_OPTIONS
 } crest_method_t;
 
-/* HTTP Status Codes */
 typedef enum {
     CREST_STATUS_OK = 200,
     CREST_STATUS_CREATED = 201,
-    CREST_STATUS_ACCEPTED = 202,
-    CREST_STATUS_NO_CONTENT = 204,
-    CREST_STATUS_PARTIAL_CONTENT = 206,
     CREST_STATUS_BAD_REQUEST = 400,
-    CREST_STATUS_UNAUTHORIZED = 401,
-    CREST_STATUS_FORBIDDEN = 403,
     CREST_STATUS_NOT_FOUND = 404,
-    CREST_STATUS_METHOD_NOT_ALLOWED = 405,
-    CREST_STATUS_CONFLICT = 409,
-    CREST_STATUS_TOO_MANY_REQUESTS = 429,
-    CREST_STATUS_REQUEST_ENTITY_TOO_LARGE = 413,
-    CREST_STATUS_INTERNAL_SERVER_ERROR = 500,
-    CREST_STATUS_NOT_IMPLEMENTED = 501,
-    CREST_STATUS_SERVICE_UNAVAILABLE = 503
+    CREST_STATUS_INTERNAL_ERROR = 500
 } crest_status_t;
 
-/* Forward declarations */
-typedef struct crest_app crest_app_t;
-typedef struct crest_request crest_request_t;
-typedef struct crest_response crest_response_t;
-typedef struct crest_route crest_route_t;
-typedef struct crest_config crest_config_t;
-typedef struct crest_middleware crest_middleware_t;
-typedef struct crest_thread_pool crest_thread_pool_t;
-typedef struct crest_router crest_router_t;
-typedef struct crest_route_match crest_route_match_t;
-
-/* Route handler function type */
-typedef void (*crest_handler_t)(crest_request_t *req, crest_response_t *res);
-
-/* Middleware function type */
-typedef bool (*crest_middleware_fn_t)(crest_request_t *req, crest_response_t *res);
+typedef void (*crest_handler_t)(crest_request_t* req, crest_response_t* res);
 
 /**
  * @brief Create a new Crest application
- * @return Pointer to the newly created application
+ * @return Pointer to the created application
  */
 CREST_API crest_app_t* crest_create(void);
 
 /**
- * @brief Create a Crest application with custom configuration
+ * @brief Create a new Crest application with configuration
  * @param config Configuration structure
- * @return Pointer to the newly created application
+ * @return Pointer to the created application
  */
-crest_app_t* crest_create_with_config(crest_config_t *config);
+CREST_API crest_app_t* crest_create_with_config(crest_config_t* config);
 
 /**
- * @brief Register a GET route
+ * @brief Destroy a Crest application
+ * @param app Application to destroy
+ */
+CREST_API void crest_destroy(crest_app_t* app);
+
+/**
+ * @brief Register a route handler
  * @param app Application instance
- * @param path Route path (e.g., "/api/users")
- * @param handler Handler function
- * @param description Optional description for documentation
- */
-CREST_API void crest_get(crest_app_t *app, const char *path, crest_handler_t handler, const char *description);
-
-/**
- * @brief Register a POST route
- * @param app Application instance
- * @param path Route path
- * @param handler Handler function
- * @param description Optional description for documentation
- */
-CREST_API void crest_post(crest_app_t *app, const char *path, crest_handler_t handler, const char *description);
-
-/**
- * @brief Register a PUT route
- * @param app Application instance
- * @param path Route path
- * @param handler Handler function
- * @param description Optional description for documentation
- */
-CREST_API void crest_put(crest_app_t *app, const char *path, crest_handler_t handler, const char *description);
-
-/**
- * @brief Register a DELETE route
- * @param app Application instance
- * @param path Route path
- * @param handler Handler function
- * @param description Optional description for documentation
- */
-CREST_API void crest_delete(crest_app_t *app, const char *path, crest_handler_t handler, const char *description);
-
-/**
- * @brief Register a PATCH route
- * @param app Application instance
- * @param path Route path
- * @param handler Handler function
- * @param description Optional description for documentation
- */
-CREST_API void crest_patch(crest_app_t *app, const char *path, crest_handler_t handler, const char *description);
-
-/* Router functions */
-
-/**
- * @brief Create a new router for grouping routes
- * @param prefix Optional path prefix for all routes
- * @return New router instance
- */
-CREST_API crest_router_t* crest_router_create(const char *prefix);
-
-/**
- * @brief Register a GET route on router
- * @param router Router instance
- * @param path Route path
- * @param handler Handler function
- * @param description Optional description
- */
-CREST_API void crest_router_get(crest_router_t *router, const char *path, crest_handler_t handler, const char *description);
-
-/**
- * @brief Register a POST route on router
- * @param router Router instance
- * @param path Route path
- * @param handler Handler function
- * @param description Optional description
- */
-CREST_API void crest_router_post(crest_router_t *router, const char *path, crest_handler_t handler, const char *description);
-
-/**
- * @brief Register a PUT route on router
- * @param router Router instance
- * @param path Route path
- * @param handler Handler function
- * @param description Optional description
- */
-CREST_API void crest_router_put(crest_router_t *router, const char *path, crest_handler_t handler, const char *description);
-
-/**
- * @brief Register a DELETE route on router
- * @param router Router instance
- * @param path Route path
- * @param handler Handler function
- * @param description Optional description
- */
-CREST_API void crest_router_delete(crest_router_t *router, const char *path, crest_handler_t handler, const char *description);
-
-/**
- * @brief Add middleware to router
- * @param router Router instance
- * @param middleware_fn Middleware function
- */
-CREST_API void crest_router_use(crest_router_t *router, crest_middleware_fn_t middleware_fn);
-
-/**
- * @brief Mount router on application
- * @param app Application instance
- * @param router Router instance to mount
- */
-CREST_API void crest_mount(crest_app_t *app, crest_router_t *router);
-
-/**
- * @brief Free router resources
- * @param router Router instance
- */
-CREST_API void crest_router_destroy(crest_router_t *router);
-
-/**
- * @brief Match a route against a path and method
- * @param router Router instance
  * @param method HTTP method
- * @param path Request path
- * @param match Output match structure
- * @return true if route matched, false otherwise
+ * @param path Route path
+ * @param handler Handler function
+ * @param description Route description for documentation
+ * @return 0 on success, -1 on error
  */
-CREST_API bool crest_router_match(crest_router_t *router, int method, const char *path, crest_route_match_t *match);
-
-/* Middleware functions */
+CREST_API int crest_route(crest_app_t* app, crest_method_t method, const char* path, 
+                          crest_handler_t handler, const char* description);
 
 /**
- * @brief Create CORS middleware
- * @return Middleware function
- */
-CREST_API crest_middleware_fn_t crest_middleware_cors(void);
-
-/**
- * @brief Create logger middleware
- * @return Middleware function
- */
-CREST_API crest_middleware_fn_t crest_middleware_logger(void);
-
-/**
- * @brief Create body parser middleware
- * @return Middleware function
- */
-CREST_API crest_middleware_fn_t crest_middleware_body_parser(void);
-
-/**
- * @brief Create static file server middleware
- * @param dir Directory to serve files from
- * @return Middleware function
- */
-CREST_API crest_middleware_fn_t crest_middleware_static(const char *dir);
-
-/**
- * @brief Create rate limiting middleware
- * @param max_requests Maximum requests per window
- * @param window_seconds Time window in seconds
- * @return Middleware function
- */
-CREST_API crest_middleware_fn_t crest_middleware_rate_limit(int max_requests, int window_seconds);
-
-/**
- * @brief Create authentication middleware
- * @param validate_fn Function to validate credentials
- * @return Middleware function
- */
-CREST_API crest_middleware_fn_t crest_middleware_auth(bool (*validate_fn)(const char *token));
-
-/**
- * @brief Add middleware to the application
+ * @brief Set request schema for a route
  * @param app Application instance
- * @param middleware_fn Middleware function
+ * @param method HTTP method
+ * @param path Route path
+ * @param schema JSON schema string (e.g., "{\"name\": \"string\", \"age\": \"number\"}")
  */
-CREST_API void crest_use(crest_app_t *app, crest_middleware_fn_t middleware_fn);
+CREST_API void crest_set_request_schema(crest_app_t* app, crest_method_t method, const char* path, const char* schema);
+
+/**
+ * @brief Set response schema for a route
+ * @param app Application instance
+ * @param method HTTP method
+ * @param path Route path
+ * @param schema JSON schema string (e.g., "{\"id\": \"number\", \"status\": \"string\"}")
+ */
+CREST_API void crest_set_response_schema(crest_app_t* app, crest_method_t method, const char* path, const char* schema);
 
 /**
  * @brief Start the server
  * @param app Application instance
- * @param host Host to bind (e.g., "0.0.0.0" or "localhost")
+ * @param host Host address (e.g., "0.0.0.0")
  * @param port Port number
  * @return 0 on success, -1 on error
  */
-CREST_API int crest_run(crest_app_t *app, const char *host, int port);
+CREST_API int crest_run(crest_app_t* app, const char* host, int port);
 
 /**
- * @brief Enable the web dashboard (like FastAPI docs)
- * @param app Application instance
- * @param enable True to enable, false to disable
- */
-CREST_API void crest_enable_dashboard(crest_app_t *app, bool enable);
-
-/**
- * @brief Set custom dashboard path (default: "/docs")
- * @param app Application instance
- * @param path Dashboard path
- */
-CREST_API void crest_set_dashboard_path(crest_app_t *app, const char *path);
-
-/* Dashboard route handlers (internal - automatically registered) */
-CREST_API void crest_dashboard_handler(crest_request_t *req, crest_response_t *res);
-CREST_API void crest_api_routes_handler(crest_request_t *req, crest_response_t *res);
-CREST_API void crest_openapi_json_handler(crest_request_t *req, crest_response_t *res);
-CREST_API void crest_swagger_ui_handler(crest_request_t *req, crest_response_t *res);
-CREST_API void crest_redoc_ui_handler(crest_request_t *req, crest_response_t *res);
-
-/**
- * @brief Free the application and all resources
+ * @brief Stop the server
  * @param app Application instance
  */
-CREST_API void crest_destroy(crest_app_t *app);
-
-/* Request functions */
-
-/**
- * @brief Get request method
- */
-CREST_API crest_method_t crest_request_method(crest_request_t *req);
+CREST_API void crest_stop(crest_app_t* app);
 
 /**
  * @brief Get request path
+ * @param req Request object
+ * @return Path string
  */
-CREST_API const char* crest_request_path(crest_request_t *req);
+CREST_API const char* crest_request_get_path(crest_request_t* req);
 
 /**
- * @brief Get query parameter value
+ * @brief Get request method
+ * @param req Request object
+ * @return Method string
  */
-CREST_API const char* crest_request_query(crest_request_t *req, const char *key);
-
-/**
- * @brief Get header value
- */
-CREST_API const char* crest_request_header(crest_request_t *req, const char *key);
+CREST_API const char* crest_request_get_method(crest_request_t* req);
 
 /**
  * @brief Get request body
+ * @param req Request object
+ * @return Body string
  */
-CREST_API const char* crest_request_body(crest_request_t *req);
+CREST_API const char* crest_request_get_body(crest_request_t* req);
 
 /**
- * @brief Get path parameter (e.g., /users/:id)
+ * @brief Get query parameter
+ * @param req Request object
+ * @param key Parameter key
+ * @return Parameter value or NULL
  */
-CREST_API const char* crest_request_param(crest_request_t *req, const char *key);
+CREST_API const char* crest_request_get_query(crest_request_t* req, const char* key);
 
 /**
- * @brief Parse JSON body
- * @return JSON object (implementation specific)
+ * @brief Get header value
+ * @param req Request object
+ * @param key Header key
+ * @return Header value or NULL
  */
-void* crest_request_json(crest_request_t *req);
-
-/* Response functions */
-
-/**
- * @brief Set response status code
- */
-CREST_API void crest_response_status(crest_response_t *res, crest_status_t status);
-
-/**
- * @brief Set response header
- */
-CREST_API void crest_response_header(crest_response_t *res, const char *key, const char *value);
-
-/**
- * @brief Send plain text response
- */
-CREST_API void crest_response_send(crest_response_t *res, const char *body);
+CREST_API const char* crest_request_get_header(crest_request_t* req, const char* key);
 
 /**
  * @brief Send JSON response
+ * @param res Response object
+ * @param status HTTP status code
+ * @param json JSON string
  */
-CREST_API void crest_response_json(crest_response_t *res, const char *json);
+CREST_API void crest_response_json(crest_response_t* res, int status, const char* json);
 
 /**
- * @brief Send file as response
+ * @brief Send text response
+ * @param res Response object
+ * @param status HTTP status code
+ * @param text Text content
  */
-void crest_response_file(crest_response_t *res, const char *filepath);
+CREST_API void crest_response_text(crest_response_t* res, int status, const char* text);
 
 /**
- * @brief Send formatted response
+ * @brief Send HTML response
+ * @param res Response object
+ * @param status HTTP status code
+ * @param html HTML content
  */
-void crest_response_sendf(crest_response_t *res, const char *format, ...);
-
-/* Configuration */
+CREST_API void crest_response_html(crest_response_t* res, int status, const char* html);
 
 /**
- * @brief Create default configuration
+ * @brief Set response header
+ * @param res Response object
+ * @param key Header key
+ * @param value Header value
  */
-CREST_API crest_config_t* crest_config_create(void);
+CREST_API void crest_response_set_header(crest_response_t* res, const char* key, const char* value);
 
 /**
- * @brief Load configuration from file
- */
-CREST_API crest_config_t* crest_config_load(const char *filepath);
-
-/**
- * @brief Free configuration
- */
-CREST_API void crest_config_destroy(crest_config_t *config);
-
-/* Thread Pool for Concurrent Processing */
-
-/**
- * @brief Create a thread pool for concurrent request processing
- * @param thread_count Number of worker threads (0 for auto-detect CPU cores)
- * @return Thread pool instance or NULL on error
- */
-crest_thread_pool_t* crest_thread_pool_create(size_t thread_count);
-
-/**
- * @brief Destroy thread pool and free resources
- * @param pool Thread pool instance
- */
-void crest_thread_pool_destroy(crest_thread_pool_t *pool);
-
-/**
- * @brief Submit a task to the thread pool
- * @param pool Thread pool instance
- * @param function Task function
- * @param arg Task argument
- * @return true on success, false on error
- */
-bool crest_thread_pool_submit(crest_thread_pool_t *pool, void (*function)(void *), void *arg);
-
-/**
- * @brief Submit a request for concurrent processing
- * @param pool Thread pool instance
+ * @brief Enable/disable Swagger UI
  * @param app Application instance
- * @param req Request instance (will be freed by thread pool)
- * @param res Response instance (will be freed by thread pool)
- * @return true on success, false on error
+ * @param enabled true to enable, false to disable
  */
-bool crest_thread_pool_submit_request(crest_thread_pool_t *pool, crest_app_t *app,
-                                     crest_request_t *req, crest_response_t *res);
+CREST_API void crest_set_docs_enabled(crest_app_t* app, bool enabled);
 
 /**
- * @brief Get number of threads in the pool
- * @param pool Thread pool instance
- * @return Number of threads
- */
-size_t crest_thread_pool_get_thread_count(const crest_thread_pool_t *pool);
-
-/**
- * @brief Get current queue size
- * @param pool Thread pool instance
- * @return Number of pending tasks
- */
-size_t crest_thread_pool_get_queue_size(const crest_thread_pool_t *pool);
-
-/* Utility functions */
-
-/**
- * @brief Get Crest version string
- */
-const char* crest_version(void);
-
-/**
- * @brief Set server port
+ * @brief Set application title for documentation
  * @param app Application instance
- * @param port Port number
+ * @param title Application title
  */
-CREST_API void crest_set_port(crest_app_t *app, int port);
+CREST_API void crest_set_title(crest_app_t* app, const char* title);
 
 /**
- * @brief Enable logging for the application
+ * @brief Set application description for documentation
  * @param app Application instance
- * @param enable True to enable logging
+ * @param description Application description
  */
-CREST_API void crest_enable_logging(crest_app_t *app, bool enable);
+CREST_API void crest_set_description(crest_app_t* app, const char* description);
 
 /**
- * @brief Start listening for connections (convenience function)
+ * @brief Configure proxy settings
  * @param app Application instance
- * @return 0 on success, -1 on error
+ * @param proxy_url Proxy URL
  */
-CREST_API int crest_listen(crest_app_t *app);
+CREST_API void crest_set_proxy(crest_app_t* app, const char* proxy_url);
 
 /**
- * @brief Validate configuration
- * @param config Configuration to validate
- * @return true if valid, false otherwise
+ * @brief Enable or disable console logging
+ * @param enabled true to enable, false to disable
  */
-CREST_API bool crest_config_validate(const crest_config_t *config);
+CREST_API void crest_log_set_enabled(bool enabled);
+
+/**
+ * @brief Enable or disable timestamps in logs
+ * @param enabled true to enable, false to disable
+ */
+CREST_API void crest_log_set_timestamp(bool enabled);
 
 #ifdef __cplusplus
 }

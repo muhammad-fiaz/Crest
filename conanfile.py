@@ -1,81 +1,58 @@
+# pylint: disable=import-error,no-member
+# mypy: disable-error-code=import
 from conan import ConanFile
-from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout, CMakeDeps
-from conan.tools.files import copy
-import os
+from conan.tools.cmake import CMakeToolchain, cmake_layout
 
 
 class CrestConan(ConanFile):
+    """Conan recipe for the Crest RESTful API framework."""
+
     name = "crest"
-    version = "1.0.0"
+    version = "0.0.0"
     license = "MIT"
-    author = "Muhammad Fiaz"
+    author = "Muhammad Fiaz <contact@muhammadfiaz.com>"
     url = "https://github.com/muhammad-fiaz/crest"
-    description = "A modern, fast, and lightweight REST API framework for C/C++"
-    topics = ("rest", "api", "framework", "web", "http")
+    description = "Production-ready RESTful API framework for C and C++"
+    topics = ("rest", "api", "http", "server", "web")
     settings = "os", "compiler", "build_type", "arch"
-    options = {
-        "shared": [True, False],
-        "fPIC": [True, False],
-        "dashboard": [True, False],
-        "examples": [True, False],
-    }
-    default_options = {
-        "shared": True,
-        "fPIC": True,
-        "dashboard": True,
-        "examples": False,
-    }
-    exports_sources = "CMakeLists.txt", "src/*", "include/*", "examples/*", "cmake/*"
+    options = {"shared": [True, False], "fPIC": [True, False]}
+    default_options = {"shared": False, "fPIC": True}
+    exports_sources = "src/*", "include/*", "xmake.lua"
 
     def config_options(self):
+        """Configure options based on the target platform."""
         if self.settings.os == "Windows":
             del self.options.fPIC
 
-    def configure(self):
-        if self.options.shared:
-            self.options.rm_safe("fPIC")
-        # Pure C library
-        del self.settings.compiler.libcxx
-        del self.settings.compiler.cppstd
-
     def layout(self):
+        """Set up the directory layout for the build."""
         cmake_layout(self)
 
     def generate(self):
-        deps = CMakeDeps(self)
-        deps.generate()
+        """Generate build files using CMake toolchain."""
         tc = CMakeToolchain(self)
-        tc.variables["CREST_BUILD_SHARED"] = self.options.shared
-        tc.variables["CREST_BUILD_STATIC"] = not self.options.shared
-        tc.variables["CREST_ENABLE_DASHBOARD"] = self.options.dashboard
-        tc.variables["CREST_BUILD_EXAMPLES"] = self.options.examples
         tc.generate()
 
     def build(self):
-        cmake = CMake(self)
-        cmake.configure()
-        cmake.build()
+        """Build the project using xmake."""
+        # Use xmake for building
+        self.run("xmake config -m %s" % str(self.settings.build_type).lower())
+        self.run("xmake build crest")
 
     def package(self):
-        cmake = CMake(self)
-        cmake.install()
-        copy(
-            self,
-            "LICENSE",
-            src=self.source_folder,
-            dst=os.path.join(self.package_folder, "licenses"),
-        )
-        copy(
-            self,
-            "*.h",
-            src=os.path.join(self.source_folder, "include"),
-            dst=os.path.join(self.package_folder, "include"),
-            keep_path=True,
-        )
+        """Package the built artifacts."""
+        self.copy("*.h", dst="include/crest", src="include/crest")
+        self.copy("*.hpp", dst="include/crest", src="include/crest")
+        self.copy("*.lib", dst="lib", keep_path=False)
+        self.copy("*.dll", dst="bin", keep_path=False)
+        self.copy("*.so", dst="lib", keep_path=False)
+        self.copy("*.dylib", dst="lib", keep_path=False)
+        self.copy("*.a", dst="lib", keep_path=False)
 
     def package_info(self):
+        """Provide information about the packaged library."""
         self.cpp_info.libs = ["crest"]
         if self.settings.os == "Windows":
-            self.cpp_info.system_libs = ["ws2_32"]
-        elif self.settings.os in ["Linux", "FreeBSD"]:
+            self.cpp_info.system_libs = ["ws2_32", "mswsock"]
+        else:
             self.cpp_info.system_libs = ["pthread"]
