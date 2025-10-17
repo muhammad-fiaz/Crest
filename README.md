@@ -1,6 +1,7 @@
 <div align="center">
 
-# 🌊 Crest
+<img alt="Logo" src="https://github.com/user-attachments/assets/eaca101f-ca45-442c-9e0b-222530290f4b" />
+
 
 **A Modern, Fast, and Lightweight REST API Framework for C/C++**
 
