@@ -29,34 +29,41 @@ theme:
     - navigation.sections
     - navigation.expand
     - navigation.top
+    - navigation.indexes
+    - navigation.footer
+    - toc.follow
+    - toc.integrate
     - search.suggest
     - search.highlight
+    - search.share
     - content.code.copy
     - content.code.annotate
+    - content.tabs.link
 
 nav:
   - Home: index.md
   - Getting Started:
     - Installation: installation.md
     - Quick Start: quickstart.md
+    - Examples: examples.md
   - API Reference:
     - C API: c_api.md
     - C++ API: cpp_api.md
-  - Guides:
+    - Status Codes: status_codes.md
+  - Core Features:
     - Configuration: configuration.md
     - Logging: logging.md
-    - Performance: performance.md
-    - Status Codes: status_codes.md
     - Schemas: schemas.md
-    - Middleware: middleware.md
-    - WebSocket: websocket.md
-    - Database: database.md
-    - File Upload: file_upload.md
-    - Templates: templates.md
-    - Examples: examples.md
-  - About:
+    - Performance & Concurrency: performance.md
+  - Advanced Features:
+    - Middleware System: middleware.md
+    - WebSocket Support: websocket.md
+    - Database Integration: database.md
+    - File Upload Handling: file_upload.md
+    - Template Engine: templates.md
+  - Contributing:
+    - Contributing Guide: contributing.md
     - License: license.md
-    - Contributing: contributing.md
 
 markdown_extensions:
   - pymdownx.highlight:
@@ -66,11 +73,17 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - admonition
   - pymdownx.details
   - attr_list
   - md_in_html
   - tables
+  - def_list
+  - pymdownx.tasklist:
+      custom_checkbox: true
 
 plugins:
   - search

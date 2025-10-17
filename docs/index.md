@@ -93,6 +93,58 @@ Inspired by modern frameworks for simplicity:
 
 Ready to build your first API with Crest? Check out our [Installation Guide](installation.md) and [Quick Start Tutorial](quickstart.md).
 
+<div class="grid cards" markdown>
+
+-   📥 __Installation__
+
+    ---
+
+    Get Crest installed on your system via xmake, Conan, or vcpkg
+
+    [→ Install now](installation.md)
+
+-   🚀 __Quick Start__
+
+    ---
+
+    Build your first REST API in minutes with our step-by-step guide
+
+    [→ Get started](quickstart.md)
+
+-   📖 __API Reference__
+
+    ---
+
+    Complete C and C++ API documentation with examples
+
+    [→ View API docs](c_api.md)
+
+-   💡 __Examples__
+
+    ---
+
+    Learn from real-world examples and code samples
+
+    [→ Browse examples](examples.md)
+
+-   ⚙️ __Configuration__
+
+    ---
+
+    Configure Crest for your specific needs
+
+    [→ Configure](configuration.md)
+
+-   ⚡ __Advanced Features__
+
+    ---
+
+    Explore middleware, WebSocket, database, and more
+
+    [→ Learn more](middleware.md)
+
+</div>
+
 ## Community
 
 - **GitHub**: [muhammad-fiaz/crest](https://github.com/muhammad-fiaz/crest)
