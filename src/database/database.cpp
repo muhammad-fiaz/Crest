@@ -255,7 +255,6 @@ std::string QueryBuilder::build() const {
                     query << conditions_[i];
                 }
             }
-            (void)data_;
             break;
     }
     

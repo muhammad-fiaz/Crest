@@ -2,7 +2,7 @@ name: Release
 
 on:
   release:
-    types: [published]
+    types: [released]
 
 jobs:
   build:
@@ -43,8 +43,10 @@ jobs:
       run: |
         mkdir -p release/lib
         mkdir -p release/include
-        cp -r build/lib/* release/lib/ 2>/dev/null || cp -r build/linux/x86_64/release/*.a release/lib/ || true
+        mkdir -p release/build
+        cp -r build/lib/* release/lib/ 2>/dev/null || cp -r build/linux/x86_64/release/*.a release/lib/ || cp -r build/macosx/x86_64/release/*.a release/lib/ || true
         cp -r include/* release/include/
+        cp -r build release/build/ 2>/dev/null || true
         cp xmake.lua release/
         cp LICENSE release/
         tar -czf ${{ matrix.asset_name }} -C release .
@@ -54,8 +56,10 @@ jobs:
       run: |
         mkdir release\lib
         mkdir release\include
+        mkdir release\build
         xcopy /E /I /Y build\lib release\lib 2>nul || xcopy /E /I /Y build\windows\x64\release\*.lib release\lib || echo.
         xcopy /E /I include release\include
+        xcopy /E /I /Y build release\build 2>nul || echo.
         copy xmake.lua release\
         copy LICENSE release\
         powershell Compress-Archive -Path release\* -DestinationPath ${{ matrix.asset_name }}
@@ -82,9 +86,9 @@ jobs:
         python-version: '3.11'
     
     - name: Install xmake
-      uses: xmake-io/github-action-setup-xmake@v1
-      with:
-        xmake-version: latest
+      run: |
+        curl -fsSL https://xmake.io/shget.text | bash
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
     
     - name: Install Conan
       run: |
@@ -93,6 +97,7 @@ jobs:
     
     - name: Create Conan Package
       run: |
+        export PATH="$HOME/.local/bin:$PATH"
         conan create . --version=${{ github.event.release.tag_name }}
     
     - name: Package Conan Recipe
@@ -109,6 +114,42 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         files: crest-conan-${{ github.event.release.tag_name }}.tar.gz
+        token: ${{ secrets.GH_TOKEN }}
+
+  publish-xmake:
+    name: Publish xmake Package
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: write
+    
+    steps:
+    - uses: actions/checkout@v5
+    
+    - name: Install xmake
+      uses: xmake-io/github-action-setup-xmake@v1
+      with:
+        xmake-version: latest
+    
+    - name: Build and Package
+      run: |
+        xmake config -m release
+        xmake build
+        xmake package
+    
+    - name: Create xmake Package
+      run: |
+        mkdir -p xmake-package
+        cp xmake.lua xmake-package/
+        cp LICENSE xmake-package/
+        cp -r include xmake-package/
+        cp -r src xmake-package/
+        tar -czf crest-xmake-${{ github.event.release.tag_name }}.tar.gz -C xmake-package .
+    
+    - name: Upload xmake Package to Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: crest-xmake-${{ github.event.release.tag_name }}.tar.gz
         token: ${{ secrets.GH_TOKEN }}
 
   publish-vcpkg:
@@ -161,7 +202,7 @@ jobs:
   update-release-notes:
     name: Update Release Notes
     runs-on: ubuntu-latest
-    needs: [build, publish-conan, publish-vcpkg]
+    needs: [build, publish-xmake, publish-conan, publish-vcpkg]
     permissions:
       contents: write
     
@@ -182,6 +223,7 @@ jobs:
         | \`crest-linux-x64.tar.gz\` | Linux x64 | Binary | [Download](https://github.com/${REPO}/releases/download/${VERSION}/crest-linux-x64.tar.gz) |
         | \`crest-windows-x64.zip\` | Windows x64 | Binary | [Download](https://github.com/${REPO}/releases/download/${VERSION}/crest-windows-x64.zip) |
         | \`crest-macos-x64.tar.gz\` | macOS x64 | Binary | [Download](https://github.com/${REPO}/releases/download/${VERSION}/crest-macos-x64.tar.gz) |
+        | \`crest-xmake-${VERSION}.tar.gz\` | All | xmake | [Download](https://github.com/${REPO}/releases/download/${VERSION}/crest-xmake-${VERSION}.tar.gz) |
         | \`crest-conan-${VERSION}.tar.gz\` | All | Conan | [Download](https://github.com/${REPO}/releases/download/${VERSION}/crest-conan-${VERSION}.tar.gz) |
         | \`crest-vcpkg-${VERSION}.tar.gz\` | All | vcpkg | [Download](https://github.com/${REPO}/releases/download/${VERSION}/crest-vcpkg-${VERSION}.tar.gz) |
         
@@ -201,6 +243,21 @@ jobs:
         
         **Windows:**
         Download and extract \`crest-windows-x64.zip\`, then add to your project paths.
+        
+        ### xmake
+        \`\`\`bash
+        wget https://github.com/${REPO}/releases/download/${VERSION}/crest-xmake-${VERSION}.tar.gz
+        tar -xzf crest-xmake-${VERSION}.tar.gz
+        cd crest-xmake-${VERSION}
+        xmake install
+        \`\`\`
+        
+        Or add to your xmake.lua:
+        \`\`\`lua
+        add_requires("crest ${VERSION}")
+        target("your_app")
+            add_packages("crest")
+        \`\`\`
         
         ### Conan
         \`\`\`bash
