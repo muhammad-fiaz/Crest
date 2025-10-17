@@ -1,10 +1,10 @@
 site_name: Crest Documentation
-site_url: https://muhammad-fiaz.github.io/crest
+site_url: https://muhammad-fiaz.github.io/Crest
 site_author: Muhammad Fiaz
 site_description: Production-ready RESTful API framework for C and C++
 
-repo_name: muhammad-fiaz/crest
-repo_url: https://github.com/muhammad-fiaz/crest
+repo_name: muhammad-fiaz/Crest
+repo_url: https://github.com/muhammad-fiaz/Crest
 edit_uri: edit/main/docs/
 
 theme:

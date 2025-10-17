@@ -13,7 +13,7 @@
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)](https://github.com/muhammad-fiaz/crest)
 
 
-[📚 Documentation](https://muhammad-fiaz.github.io/crest/) • [🚀 Quick Start](#-quick-start) • [🤝 Contributing](CONTRIBUTING.md)
+[📚 Documentation](https://muhammad-fiaz.github.io/Crest/) • [🚀 Quick Start](#-quick-start) • [🤝 Contributing](CONTRIBUTING.md)
 
 </div>
 
@@ -110,7 +110,7 @@ int main(void) {
 
 ## 📖 Documentation
 
-Full documentation is available at: [https://muhammad-fiaz.github.io/crest](https://muhammad-fiaz.github.io/crest)
+Full documentation is available at: [https://muhammad-fiaz.github.io/Crest](https://muhammad-fiaz.github.io/Crest)
 
 - [C API Documentation](docs/c_api.md)
 - [C++ API Documentation](docs/cpp_api.md)

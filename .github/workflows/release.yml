@@ -52,6 +52,7 @@ jobs:
     
     - name: Package (Windows)
       if: runner.os == 'Windows'
+      shell: cmd
       run: |
         mkdir release\lib
         mkdir release\include
@@ -60,7 +61,10 @@ jobs:
         copy LICENSE release\
         copy README.md release\
         for /r build %%f in (crest.lib) do copy "%%f" release\lib\
-        powershell Compress-Archive -Path release\* -DestinationPath ${{ matrix.asset_name }}
+    
+    - name: Compress (Windows)
+      if: runner.os == 'Windows'
+      run: Compress-Archive -Path release\* -DestinationPath ${{ matrix.asset_name }}
     
     - name: Upload Release Asset
       uses: softprops/action-gh-release@v2

@@ -6,12 +6,16 @@ authors = [
     { name ="Muhammad Fiaz", email = "contact@muhammadfiaz.com" },
 ]
 license = { text = "MIT" }
-url = "https://github.com/muhammadfiaz/crest"
-homepage = "https://github.com/muhammadfiaz/crest"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
 ]
+
+[project.urls]
+Homepage = "https://github.com/muhammad-fiaz/Crest"
+Documentation = "https://muhammad-fiaz.github.io/Crest"
+Repository = "https://github.com/muhammad-fiaz/Crest"
+Issues = "https://github.com/muhammad-fiaz/Crest/issues"
 
 [dependency-groups]
 dev = [
