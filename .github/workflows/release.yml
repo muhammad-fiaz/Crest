@@ -209,8 +209,8 @@ jobs:
     steps:
     - uses: actions/checkout@v5
     
-    - name: Generate Installation Table
-      id: table
+    - name: Generate Release Notes
+      id: notes
       run: |
         VERSION="${{ github.event.release.tag_name }}"
         REPO="${{ github.repository }}"
@@ -277,11 +277,14 @@ jobs:
         ## 📚 Documentation
         
         Visit [https://muhammad-fiaz.github.io/crest](https://muhammad-fiaz.github.io/crest) for full documentation.
+        
+        ---
+        
+        **Full Changelog**: https://github.com/${REPO}/commits/${VERSION}
         EOF
-    
+        
     - name: Update Release
       uses: softprops/action-gh-release@v2
       with:
         token: ${{ secrets.GH_TOKEN }}
         body_path: release_notes.md
-        append_body: true

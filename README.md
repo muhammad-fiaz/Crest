@@ -40,26 +40,7 @@ A production-ready, high-performance RESTful API framework for C and C++. Inspir
 
 ## 📦 Installation
 
-### Download from GitHub Releases (Recommended)
-
-Download the latest pre-built binaries for your platform from [GitHub Releases](https://github.com/muhammad-fiaz/crest/releases):
-
-- **Linux**: `crest-linux-x64.tar.gz`
-- **Windows**: `crest-windows-x64.zip`
-- **macOS**: `crest-macos-x64.tar.gz`
-
-Extract and follow the installation instructions in the release notes.
-
-### Build from Source
-
-```bash
-git clone https://github.com/muhammad-fiaz/crest.git
-cd crest
-xmake build
-xmake install
-```
-
-### Using xmake Package
+### Using xmake (Recommended)
 
 ```bash
 xmake repo -u
@@ -77,28 +58,18 @@ target("your_app")
     add_files("src/*.cpp")
 ```
 
-### Using Conan (Alternative)
+### Build from Source
 
 ```bash
-conan install https://github.com/muhammad-fiaz/crest.git
+git clone https://github.com/muhammad-fiaz/crest.git
+cd crest
+xmake build
+xmake install
 ```
 
-### Using vcpkg (Alternative)
+### Download Pre-built Binaries
 
-vcpkg packages are typically installed from the official registry. For development versions, you can add the port locally:
-
-1. Clone vcpkg:
-   ```bash
-   git clone https://github.com/microsoft/vcpkg.git
-   cd vcpkg
-   .\bootstrap-vcpkg.bat
-   ```
-
-2. Add the crest port locally and install:
-   ```bash
-   # Follow instructions in the repository for local port setup
-   .\vcpkg install crest
-   ```
+Download the latest packages from [GitHub Releases](https://github.com/muhammad-fiaz/crest/releases) - includes binaries, xmake, Conan, and vcpkg packages.
 
 ## 🚀 Quick Start
 
