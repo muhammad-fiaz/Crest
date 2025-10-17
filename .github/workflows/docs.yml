@@ -7,12 +7,6 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -30,20 +24,5 @@ jobs:
         run: |
           pip install mkdocs mkdocs-material
       
-      - name: Build documentation
-        run: mkdocs build
-      
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
-        with:
-          path: 'site'
-      
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+        run: mkdocs gh-deploy --force
