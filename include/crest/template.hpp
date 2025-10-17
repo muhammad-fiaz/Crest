@@ -22,10 +22,12 @@ using TemplateContext = std::map<std::string, TemplateValue>;
 class TemplateEngine {
 public:
     struct Config {
-        std::string template_dir = "./templates";
-        std::string extension = ".html";
-        bool cache_enabled = true;
-        bool auto_escape = true;
+        std::string template_dir;
+        std::string extension;
+        bool cache_enabled;
+        bool auto_escape;
+        
+        Config() : template_dir("./templates"), extension(".html"), cache_enabled(true), auto_escape(true) {}
     };
     
     explicit TemplateEngine(const Config& config = Config());
