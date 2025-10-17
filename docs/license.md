@@ -51,4 +51,4 @@ Crest may depend on third-party libraries. Please check their respective license
 
 By contributing to Crest, you agree that your contributions will be licensed under the MIT License.
 
-See [CONTRIBUTING.md](../CONTRIBUTING.md) for more information.
+See [CONTRIBUTING.md](https://github.com/muhammad-fiaz/crest/blob/main/CONTRIBUTING.md) for more information.
