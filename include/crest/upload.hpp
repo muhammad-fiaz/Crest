@@ -29,10 +29,12 @@ struct UploadedFile {
 class MultipartParser {
 public:
     struct Config {
-        size_t max_file_size = 10 * 1024 * 1024; // 10MB
-        size_t max_files = 10;
+        size_t max_file_size;
+        size_t max_files;
         std::vector<std::string> allowed_extensions;
         std::vector<std::string> allowed_mime_types;
+        
+        Config() : max_file_size(10 * 1024 * 1024), max_files(10) {}
     };
     
     explicit MultipartParser(const Config& config = Config());
