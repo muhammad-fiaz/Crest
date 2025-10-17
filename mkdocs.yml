@@ -44,6 +44,15 @@ nav:
     - C++ API: cpp_api.md
   - Guides:
     - Configuration: configuration.md
+    - Logging: logging.md
+    - Performance: performance.md
+    - Status Codes: status_codes.md
+    - Schemas: schemas.md
+    - Middleware: middleware.md
+    - WebSocket: websocket.md
+    - Database: database.md
+    - File Upload: file_upload.md
+    - Templates: templates.md
     - Examples: examples.md
   - About:
     - License: license.md

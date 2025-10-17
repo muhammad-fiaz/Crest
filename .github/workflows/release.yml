@@ -2,7 +2,7 @@ name: Release
 
 on:
   release:
-    types: [created]
+    types: [created, published]
 
 jobs:
   build:
@@ -15,12 +15,15 @@ jobs:
           - os: ubuntu-latest
             artifact_name: crest-linux
             asset_name: crest-linux-x64.tar.gz
+            platform: Linux x64
           - os: windows-latest
             artifact_name: crest-windows
             asset_name: crest-windows-x64.zip
+            platform: Windows x64
           - os: macos-latest
             artifact_name: crest-macos
             asset_name: crest-macos-x64.tar.gz
+            platform: macOS x64
     
     steps:
     - uses: actions/checkout@v5
@@ -40,8 +43,10 @@ jobs:
       run: |
         mkdir -p release/lib
         mkdir -p release/include
-        cp -r build/lib/* release/lib/
+        cp -r build/lib/* release/lib/ 2>/dev/null || cp -r build/linux/x86_64/release/*.a release/lib/ || true
         cp -r include/* release/include/
+        cp xmake.lua release/
+        cp LICENSE release/
         tar -czf ${{ matrix.asset_name }} -C release .
     
     - name: Package (Windows)
@@ -49,56 +54,25 @@ jobs:
       run: |
         mkdir release\lib
         mkdir release\include
-        xcopy /E /I build\lib release\lib
+        xcopy /E /I /Y build\lib release\lib 2>nul || xcopy /E /I /Y build\windows\x64\release\*.lib release\lib || echo.
         xcopy /E /I include release\include
+        copy xmake.lua release\
+        copy LICENSE release\
         powershell Compress-Archive -Path release\* -DestinationPath ${{ matrix.asset_name }}
     
     - name: Upload Release Asset
       uses: softprops/action-gh-release@v2
       with:
         files: ./${{ matrix.asset_name }}
-        token: ${{ env.GH_TOKEN }}
-        body: |
-          ${{ github.event.release.body }}
+        token: ${{ secrets.GH_TOKEN }}
+        draft: false
 
-          ## 📦 Build Artifacts
-
-          - **Linux**: crest-linux-x64.tar.gz
-          - **Windows**: crest-windows-x64.zip
-          - **macOS**: crest-macos-x64.tar.gz
-
-          ## 🚀 Installation
-
-          ### Linux/macOS
-          ```bash
-          tar -xzf crest-linux-x64.tar.gz
-          sudo cp -r lib/* /usr/local/lib/
-          sudo cp -r include/* /usr/local/include/
-          ```
-
-          ### Windows
-          Extract the zip file and add to your project include/lib paths.
-
-          ## 📚 Documentation
-
-          Visit [https://muhammad-fiaz.github.io/crest](https://muhammad-fiaz.github.io/crest) for full documentation.
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      if: matrix.os == 'ubuntu-latest'
-
-    - name: Upload Release Asset
-      uses: softprops/action-gh-release@v2
-      with:
-        files: ./${{ matrix.asset_name }}
-        token: ${{ env.GH_TOKEN }}
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      if: matrix.os != 'ubuntu-latest'
-
-  deploy-docs:
-    name: Deploy Documentation
+  publish-conan:
+    name: Publish Conan Package
     runs-on: ubuntu-latest
     needs: build
+    permissions:
+      contents: write
     
     steps:
     - uses: actions/checkout@v5
@@ -108,23 +82,149 @@ jobs:
       with:
         python-version: '3.11'
     
-    - name: Install uv
+    - name: Install Conan
       run: |
-        curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+        pip install conan
+        conan profile detect --force
     
-    - name: Generate Documentation Site
+    - name: Create Conan Package
       run: |
-        uv venv
-        source .venv/bin/activate
-        uv pip install mkdocs mkdocs-material
-        mkdocs build
+        conan create . --version=${{ github.event.release.tag_name }}
+        conan export-pkg . --version=${{ github.event.release.tag_name }}
     
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
+    - name: Package Conan Recipe
+      run: |
+        mkdir -p conan-package
+        cp conanfile.py conan-package/
+        cp xmake.lua conan-package/
+        cp LICENSE conan-package/
+        cp -r include conan-package/
+        cp -r src conan-package/
+        tar -czf crest-conan-${{ github.event.release.tag_name }}.tar.gz -C conan-package .
+    
+    - name: Upload Conan Package to Release
+      uses: softprops/action-gh-release@v2
       with:
-        github_token: ${{ env.GH_TOKEN }}
-        publish_dir: ./site
-        cname: muhammad-fiaz.github.io
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        files: crest-conan-${{ github.event.release.tag_name }}.tar.gz
+        token: ${{ secrets.GH_TOKEN }}
+        draft: false
+
+  publish-vcpkg:
+    name: Publish vcpkg Port
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: write
+    
+    steps:
+    - uses: actions/checkout@v5
+    
+    - name: Create vcpkg Port
+      run: |
+        mkdir -p vcpkg-port/ports/crest
+        cp vcpkg.json vcpkg-port/ports/crest/
+        cp xmake.lua vcpkg-port/ports/crest/
+        cp LICENSE vcpkg-port/ports/crest/
+        cat > vcpkg-port/ports/crest/portfile.cmake << 'EOF'
+        vcpkg_from_github(
+            OUT_SOURCE_PATH SOURCE_PATH
+            REPO muhammad-fiaz/crest
+            REF ${{ github.event.release.tag_name }}
+            SHA512 0
+            HEAD_REF main
+        )
+        
+        vcpkg_configure_cmake(
+            SOURCE_PATH ${SOURCE_PATH}
+            PREFER_NINJA
+        )
+        
+        vcpkg_install_cmake()
+        vcpkg_fixup_cmake_targets()
+        
+        file(REMOVE_RECURSE ${CURRENT_PACKAGES_DIR}/debug/include)
+        file(INSTALL ${SOURCE_PATH}/LICENSE DESTINATION ${CURRENT_PACKAGES_DIR}/share/crest RENAME copyright)
+        EOF
+    
+    - name: Package vcpkg Port
+      run: |
+        tar -czf crest-vcpkg-${{ github.event.release.tag_name }}.tar.gz -C vcpkg-port .
+    
+    - name: Upload vcpkg Port to Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: crest-vcpkg-${{ github.event.release.tag_name }}.tar.gz
+        token: ${{ secrets.GH_TOKEN }}
+        draft: false
+
+  update-release-notes:
+    name: Update Release Notes
+    runs-on: ubuntu-latest
+    needs: [build, publish-conan, publish-vcpkg]
+    permissions:
+      contents: write
+    
+    steps:
+    - uses: actions/checkout@v5
+    
+    - name: Generate Installation Table
+      id: table
+      run: |
+        VERSION="${{ github.event.release.tag_name }}"
+        REPO="${{ github.repository }}"
+        
+        cat > release_notes.md << EOF
+        ## 📦 Installation
+        
+        | File | Platform | Method | Download |
+        |------|----------|--------|----------|
+        | \`crest-linux-x64.tar.gz\` | Linux x64 | Binary | [Download](https://github.com/${REPO}/releases/download/${VERSION}/crest-linux-x64.tar.gz) |
+        | \`crest-windows-x64.zip\` | Windows x64 | Binary | [Download](https://github.com/${REPO}/releases/download/${VERSION}/crest-windows-x64.zip) |
+        | \`crest-macos-x64.tar.gz\` | macOS x64 | Binary | [Download](https://github.com/${REPO}/releases/download/${VERSION}/crest-macos-x64.tar.gz) |
+        | \`crest-conan-${VERSION}.tar.gz\` | All | Conan | [Download](https://github.com/${REPO}/releases/download/${VERSION}/crest-conan-${VERSION}.tar.gz) |
+        | \`crest-vcpkg-${VERSION}.tar.gz\` | All | vcpkg | [Download](https://github.com/${REPO}/releases/download/${VERSION}/crest-vcpkg-${VERSION}.tar.gz) |
+        
+        **Note:** All packages include static libraries (.a/.lib), headers, and xmake.lua for easy integration.
+        
+        ## 🚀 Quick Install
+        
+        ### Binary Installation
+        
+        **Linux/macOS:**
+        \`\`\`bash
+        wget https://github.com/${REPO}/releases/download/${VERSION}/crest-linux-x64.tar.gz
+        tar -xzf crest-linux-x64.tar.gz
+        sudo cp -r lib/* /usr/local/lib/
+        sudo cp -r include/* /usr/local/include/
+        \`\`\`
+        
+        **Windows:**
+        Download and extract \`crest-windows-x64.zip\`, then add to your project paths.
+        
+        ### Conan
+        \`\`\`bash
+        wget https://github.com/${REPO}/releases/download/${VERSION}/crest-conan-${VERSION}.tar.gz
+        tar -xzf crest-conan-${VERSION}.tar.gz
+        conan create . --version=${VERSION}
+        \`\`\`
+        
+        ### vcpkg
+        \`\`\`bash
+        wget https://github.com/${REPO}/releases/download/${VERSION}/crest-vcpkg-${VERSION}.tar.gz
+        tar -xzf crest-vcpkg-${VERSION}.tar.gz
+        cp -r ports/crest \$VCPKG_ROOT/ports/
+        vcpkg install crest
+        \`\`\`
+        
+        ## 📚 Documentation
+        
+        Visit [https://muhammad-fiaz.github.io/crest](https://muhammad-fiaz.github.io/crest) for full documentation.
+        EOF
+    
+    - name: Update Release
+      uses: softprops/action-gh-release@v2
+      with:
+        token: ${{ secrets.GH_TOKEN }}
+        body_path: release_notes.md
+        draft: false
+        append_body: true
