@@ -105,7 +105,6 @@ App& App::route(Method method, const std::string& path, Handler handler, const s
     if (!app_) throw Exception("Invalid app instance");
     
     Handler* handler_ptr = new Handler(std::move(handler));
-    handlers_[handler_ptr] = *handler_ptr;
     
     auto c_handler = [](crest_request_t* req, crest_response_t* res) {
         // C handler wrapper - actual handler called via cpp_handler pointer
@@ -116,9 +115,10 @@ App& App::route(Method method, const std::string& path, Handler handler, const s
     
     if (result != 0) {
         delete handler_ptr;
-        handlers_.erase(handler_ptr);
         throw Exception("Failed to register route: " + path);
     }
+    
+    handlers_[handler_ptr] = *handler_ptr;
     
     if (app_->route_count > 0) {
         app_->routes[app_->route_count - 1].cpp_handler = handler_ptr;

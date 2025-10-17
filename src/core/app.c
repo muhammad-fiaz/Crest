@@ -13,6 +13,10 @@
 #define strdup _strdup
 #endif
 
+#if defined(__GNUC__) && !defined(_GNU_SOURCE)
+extern char* strdup(const char*);
+#endif
+
 extern void* crest_mutex_create();
 extern void crest_mutex_destroy(void* mutex);
 

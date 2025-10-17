@@ -51,9 +51,11 @@ private:
 class RateLimitMiddleware : public Middleware {
 public:
     struct Options {
-        int max_requests = 100;
-        int window_seconds = 60;
-        std::string message = "Too many requests";
+        int max_requests;
+        int window_seconds;
+        std::string message;
+        
+        Options() : max_requests(100), window_seconds(60), message("Too many requests") {}
     };
 
     explicit RateLimitMiddleware(const Options& opts = Options()) : options_(opts) {}
