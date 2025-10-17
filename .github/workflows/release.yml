@@ -36,19 +36,18 @@ jobs:
     - name: Build Release
       run: |
         xmake config -m release
-        xmake build
+        xmake build crest
     
     - name: Package (Linux/macOS)
       if: runner.os != 'Windows'
       run: |
         mkdir -p release/lib
         mkdir -p release/include
-        mkdir -p release/build
-        cp -r build/lib/* release/lib/ 2>/dev/null || cp -r build/linux/x86_64/release/*.a release/lib/ || cp -r build/macosx/x86_64/release/*.a release/lib/ || true
         cp -r include/* release/include/
-        cp -r build release/build/ 2>/dev/null || true
         cp xmake.lua release/
         cp LICENSE release/
+        cp README.md release/
+        find build -name "libcrest.a" -exec cp {} release/lib/ \;
         tar -czf ${{ matrix.asset_name }} -C release .
     
     - name: Package (Windows)
@@ -56,12 +55,11 @@ jobs:
       run: |
         mkdir release\lib
         mkdir release\include
-        mkdir release\build
-        xcopy /E /I /Y build\lib release\lib 2>nul || xcopy /E /I /Y build\windows\x64\release\*.lib release\lib || echo.
         xcopy /E /I include release\include
-        xcopy /E /I /Y build release\build 2>nul || echo.
         copy xmake.lua release\
         copy LICENSE release\
+        copy README.md release\
+        for /r build %%f in (crest.lib) do copy "%%f" release\lib\
         powershell Compress-Archive -Path release\* -DestinationPath ${{ matrix.asset_name }}
     
     - name: Upload Release Asset
@@ -106,6 +104,7 @@ jobs:
         cp conanfile.py conan-package/
         cp xmake.lua conan-package/
         cp LICENSE conan-package/
+        cp README.md conan-package/
         cp -r include conan-package/
         cp -r src conan-package/
         tar -czf crest-conan-${{ github.event.release.tag_name }}.tar.gz -C conan-package .
@@ -142,6 +141,7 @@ jobs:
         mkdir -p xmake-package
         cp xmake.lua xmake-package/
         cp LICENSE xmake-package/
+        cp README.md xmake-package/
         cp -r include xmake-package/
         cp -r src xmake-package/
         tar -czf crest-xmake-${{ github.event.release.tag_name }}.tar.gz -C xmake-package .
@@ -168,6 +168,10 @@ jobs:
         cp vcpkg.json vcpkg-port/ports/crest/
         cp xmake.lua vcpkg-port/ports/crest/
         cp LICENSE vcpkg-port/ports/crest/
+        cp README.md vcpkg-port/ports/crest/
+        cp conanfile.py vcpkg-port/ports/crest/
+        cp -r include vcpkg-port/ports/crest/
+        cp -r src vcpkg-port/ports/crest/
         cat > vcpkg-port/ports/crest/portfile.cmake << 'EOF'
         vcpkg_from_github(
             OUT_SOURCE_PATH SOURCE_PATH
@@ -223,9 +227,9 @@ jobs:
         | \`crest-linux-x64.tar.gz\` | Linux x64 | Binary | [Download](https://github.com/${REPO}/releases/download/${VERSION}/crest-linux-x64.tar.gz) |
         | \`crest-windows-x64.zip\` | Windows x64 | Binary | [Download](https://github.com/${REPO}/releases/download/${VERSION}/crest-windows-x64.zip) |
         | \`crest-macos-x64.tar.gz\` | macOS x64 | Binary | [Download](https://github.com/${REPO}/releases/download/${VERSION}/crest-macos-x64.tar.gz) |
-        | \`crest-xmake-${VERSION}.tar.gz\` | All | xmake | [Download](https://github.com/${REPO}/releases/download/${VERSION}/crest-xmake-${VERSION}.tar.gz) |
-        | \`crest-conan-${VERSION}.tar.gz\` | All | Conan | [Download](https://github.com/${REPO}/releases/download/${VERSION}/crest-conan-${VERSION}.tar.gz) |
-        | \`crest-vcpkg-${VERSION}.tar.gz\` | All | vcpkg | [Download](https://github.com/${REPO}/releases/download/${VERSION}/crest-vcpkg-${VERSION}.tar.gz) |
+        | \`crest-xmake-${VERSION}.tar.gz\` | Windows, Linux, macOS | xmake | [Download](https://github.com/${REPO}/releases/download/${VERSION}/crest-xmake-${VERSION}.tar.gz) |
+        | \`crest-conan-${VERSION}.tar.gz\` | Windows, Linux, macOS | Conan | [Download](https://github.com/${REPO}/releases/download/${VERSION}/crest-conan-${VERSION}.tar.gz) |
+        | \`crest-vcpkg-${VERSION}.tar.gz\` | Windows, Linux, macOS | vcpkg | [Download](https://github.com/${REPO}/releases/download/${VERSION}/crest-vcpkg-${VERSION}.tar.gz) |
         
         **Note:** All packages include static libraries (.a/.lib), headers, and xmake.lua for easy integration.
         
